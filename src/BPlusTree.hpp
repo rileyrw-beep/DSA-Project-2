@@ -2,12 +2,12 @@
 #ifndef DSA_PROJECT_2_BPLUSTREE_HPP
 #define DSA_PROJECT_2_BPLUSTREE_HPP
 
-#include "TreeInterface.hpp"
+#include "DataStructure.hpp"
 #include <array>
 #include <cstdint>
-#include <tuple>
 
-template <typename T, size_t Order>
+
+template <typename T, std::size_t Order>
 class BPlusTree : public DataStructure<T> {
 
     struct BPNode {

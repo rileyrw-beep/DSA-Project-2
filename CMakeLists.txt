@@ -5,4 +5,9 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_executable(DSA_Project_2
         src/main.cpp
-        test/test.cpp)
+        test/test.cpp
+        src/BPlusTree.cpp
+        src/BPlusTree.hpp
+        src/TreeInterface.hpp
+        src/DataStructure.hpp
+)
