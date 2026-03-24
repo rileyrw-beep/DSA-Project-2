@@ -9,9 +9,9 @@ public:
     DataStructure() = default;
     virtual ~DataStructure() = default;
 
-    virtual bool insert(T value) = 0;
-    virtual bool remove(T value) = 0;
-    virtual bool search(T value) = 0;
+    virtual bool insert(T val) = 0;
+    virtual bool remove(T val) = 0;
+    virtual bool search(T val) = 0;
 
 };
 
