@@ -15,15 +15,17 @@ class BPlusTree : public DataStructure<T> {
         std::array<T, Order> data;
         std::array<BPNode*, Order+1> edges;
         std::size_t size;
-        BPNode* next;
+        BPNode() {size = 0;}
         bool isLeaf() {return edges[0] == nullptr;}
+
     };
 
     BPNode* root;
 
     //helper functions
     std::size_t findInsertIndex(BPNode* node, T val);
-    BPNode* insertHelper(BPNode* root, T val);
+    void split(BPNode*& node, std::size_t index);
+    BPNode* recursiveInsert(BPNode* root, T val);
     BPNode* removeHelper(BPNode* root, T val);
 
 public:
