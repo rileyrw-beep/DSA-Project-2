@@ -12,6 +12,23 @@ void arrInsert(std::array<Type, N> &arr, Type val, std::size_t index, std::size_
 }
 
 template<typename Type, std::size_t N>
+void arrErase(std::array<Type, N> &arr, std::size_t index, std::size_t& size) {
+
+    //if invalid index then return early
+    if (index >= size) return;
+
+    //start at the index and then move the index + 1 into it
+    //go until you reach size-2 and then replace the size-1 with Type{}
+    for (size_t i = index; i < size - 1; i++) {
+        arr[i] = arr[i + 1];
+    }
+
+    arr[size - 1] = Type{};
+    size--;
+    
+}
+
+template<typename Type, std::size_t N>
 int arrBinarySearch(const std::array<Type, N> &arr, Type target, int left, int right, const std::size_t size) {
     if (left > right) return -1;
 
