@@ -6,6 +6,7 @@
 #include <array>
 #include <vector>
 #include <cstdint>
+#include <utility>
 
 
 template <typename T, std::size_t Order>
@@ -15,7 +16,11 @@ class BPlusTree : public DataStructure<T> {
         std::array<T, Order> data;
         std::array<BPNode*, Order+1> edges;
         std::size_t size;
-        BPNode() {size = 0;}
+        BPNode* next;
+        BPNode() {
+            size = 0;
+            next = nullptr;
+        }
         bool isLeaf() {return edges[0] == nullptr;}
 
     };
@@ -25,7 +30,7 @@ class BPlusTree : public DataStructure<T> {
     //helper functions
     std::size_t findInsertIndex(BPNode* node, T val);
     void split(BPNode*& node, std::size_t index);
-    BPNode* recursiveInsert(BPNode* root, T val);
+    std::pair<BPNode*, bool> recursiveInsert(BPNode* root, T val);
     BPNode* removeHelper(BPNode* root, T val);
 
 public:
