@@ -1,5 +1,7 @@
 #include "BPlusTree.hpp"
 
+#include <ranges>
+
 template<typename Type, std::size_t N>
 void arrInsert(std::array<Type, N> &arr, Type val, std::size_t index, std::size_t& size) {
     if (index != size) {
@@ -25,24 +27,24 @@ void arrErase(std::array<Type, N> &arr, std::size_t index, std::size_t& size) {
 
     arr[size - 1] = Type{};
     size--;
-    
+
 }
 
 template<typename Type, std::size_t N>
-int arrBinarySearch(const std::array<Type, N> &arr, Type target, int left, int right, const std::size_t size) {
-    if (left > right) return -1;
+std::pair<int, bool> arrBinarySearch(const std::array<Type, N> &arr, Type target, int left, int right, std::size_t size) {
+    if (left > right) return std::make_pair(-1, false);
 
     int mid = (left + right) / 2;
 
     //if mid refers to target, return -1 because it is already in the tree
-    if (arr[mid] == target) return -1;
+    if (arr[mid] == target) return std::make_pair(mid, true);
 
     //check left cases
     if (target < arr[mid]) {
         //if you are smaller than current index and to the left of you is nothing then follow mid index
-        if (mid - 1 < 0) return mid;
+        if (mid - 1 < 0) return std::make_pair(mid, false);
         //if you are smaller than current index but larger than the element left of current then follow mid index
-        if (target > arr[mid - 1]) return mid;
+        if (target > arr[mid - 1]) return std::make_pair(mid, false);
         //else, continue searching
         return arrBinarySearch(arr, target, left, mid - 1);
     }
@@ -50,9 +52,9 @@ int arrBinarySearch(const std::array<Type, N> &arr, Type target, int left, int r
     //check right cases
     else {
         //if you are larger than current index and nothing is to the right of you then follow mid+1 index
-        if (mid + 1 >= size - 1) return mid + 1;
+        if (mid + 1 >= size - 1) return std::make_pair(mid + 1, false);
         //if you are larger than the current index but smaller than right element then follow mid+1
-        if (target < arr[mid + 1]) return mid + 1;
+        if (target < arr[mid + 1]) return std::make_pair(mid + 1, false);;
         //else, continue searching
         return arrBinarySearch(arr, target, mid + 1, right);
     }
@@ -136,9 +138,10 @@ void BPlusTree<T, Order>::split(BPNode *&node, std::size_t index) {
 
 template<typename T, std::size_t Order>
 std::pair<typename BPlusTree<T, Order>::BPNode*, bool> BPlusTree<T, Order>::recursiveInsert(BPNode *node, T val) {
-    int index = arrBinarySearch(node->data, val, 0, node->size-1, node->size);
+    auto [index, foundExactIndex] = arrBinarySearch(node->data, val, 0, node->size-1, node->size);
 
-    if (index < 0) return std::make_pair(node, false);
+    //if the item already exists in the tree, return early
+    if (foundExactIndex) return std::make_pair(node, false);
 
     //decision process of a single node
     if (node->isLeaf()) {
@@ -157,15 +160,12 @@ std::pair<typename BPlusTree<T, Order>::BPNode*, bool> BPlusTree<T, Order>::recu
     //check the node you just altered
     BPNode *child = node->edges[index];
 
-    //if data is not breaking the size invariant of the altered child then return early
-    if (child == nullptr || child->size < child->data.size()) {
-        return std::make_pair(node, true);
+    //if data is breaking the size invariant of the altered child then fix it
+    if (child == nullptr || child->size >= child->data.size()) {
+        split(node, index);
     }
 
-    //if not, then we got a problem to fix
-    split(node, index);
-
-    //finally return root to ensure that our changes are linked up the tree.
+    //finally return current Node to ensure that our changes are linked up the tree.
     return std::make_pair(node, true);
 }
 
@@ -199,7 +199,58 @@ bool BPlusTree<T, Order>::insert(T val) {
 
 
 //deletion:
+template<typename T, std::size_t Order>
+void BPlusTree<T, Order>::resolveUnderflow(BPNode*& node, std::size_t edgeIndex) {
+    //start writing resolve underflow
+}
 
+template <typename T, std::size_t Order>
+std::pair<typename BPlusTree<T, Order>::BPNode*, bool> BPlusTree<T, Order>::recursiveRemove(BPNode *node, T val) {
+
+    //search through current node to get either the index of val or the index you must follow to edges
+    auto [dataIndex, foundExactIndex] = arrBinarySearch(node->data, val, 0, node->size-1, node->size);
+
+    int edgeIndex = foundExactIndex ? dataIndex + 1 : dataIndex;
+
+    //if its a leaf
+    if (node->isLeaf()) {
+        //and you have the actual index then delete it
+        if (foundExactIndex)
+            arrErase(node->data, dataIndex, node->size);
+        //if not, then there is nothing to delete so just return early.
+        else
+            return std::make_pair(node, false);
+    }
+
+    //if not, then we have an internal
+    //so index into the edges array and follow the path through recursive call
+    node->edges[edgeIndex] = recursiveInsert(node->edges[edgeIndex], val).first;
+    //return from recursive call
+
+    //check the node you just altered
+    BPNode *child = node->edges[edgeIndex];
+    std::size_t minSize = child->isLeaf() ? (Order + 1) / 2 : (Order + 1) / 2 - 1;
+
+    //if the node underflowed then fix it
+    if (child == nullptr || child->size < minSize) {
+        resolveUnderflow(node, edgeIndex);
+    }
+
+    //finally once that is resolved return the node to link it with the rest of the tree.
+    return std::make_pair(node, true);
+
+}
+
+template <typename T, std::size_t Order>
+bool BPlusTree<T, Order>::remove(T val) {
+
+    auto [newRoot, didRemove] = recursiveRemove(root, val);
+
+    if (!didRemove) return false;
+
+    //and the case the root has underflow
+
+}
 
 
 
