@@ -17,7 +17,7 @@ class HashTable {
     std::size_t count;
     static constexpr float MAX_LOAD_FACTOR = 0.75f;
 
-    std::size_t hash(const std::string& key);
+    std::size_t hash(const std::string& key)const;
     void rehash();
 
     public:
