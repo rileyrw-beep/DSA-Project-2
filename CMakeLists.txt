@@ -10,7 +10,9 @@ add_executable(DSA_Project_2
         src/BPlusTree.hpp
         src/DataStructure.hpp
         src/SkipList.hpp
-        src/SkipList.cpp
+        src/HashTable.h
+        src/HashTable.cpp
+
 )
 
 target_compile_options(DSA_Project_2 PRIVATE -g -Wall -Wextra -Wpedantic)
