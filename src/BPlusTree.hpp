@@ -29,10 +29,16 @@ class BPlusTree : public DataStructure<T> {
 
 
     //helper functions
-    void split(BPNode*& node, std::size_t index);
-    void resolveUnderflow(BPNode*& node, std::size_t edgeIndex);
+    void split(BPNode*& parent, std::size_t index);
+    bool borrow(BPNode*& parent, std::size_t edgeIndex, std::size_t min);
+    void merge(BPNode*& parent, std::size_t edgeIndex, std::size_t min);
+
     std::pair<BPNode*, bool> recursiveInsert(BPNode* root, T val);
     std::pair<BPNode*, bool> recursiveRemove(BPNode* root, T val);
+    bool recursiveSearch(BPNode* root, T val);
+
+    void destructorHelper(BPNode* root);
+    BPNode* findNode(BPNode* root, T val);
 
 public:
 
@@ -43,8 +49,7 @@ public:
     bool remove(T val) override;
     bool search(T val) override;
 
-    std::vector<BPNode*> traverseInorder();
-    std::vector<BPNode*> searchRange(T start, T end);
+    std::vector<T> searchRange(T start, T end);
 
 
 
